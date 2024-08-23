@@ -1,4 +1,4 @@
-# PoBerT: Ray Tracer written in Rust
+# PoBeRT: Physically Based Ray Tracer written in Rust
 
 current capabilities: 
 - writing to images
