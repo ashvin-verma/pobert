@@ -3,6 +3,7 @@
 current capabilities: 
 - writing to images
 - basic ray-tracing w/normals
+
 ![Ray tracing parity uptil section 7](ray_normals_spheres.ppm)
 
 in the works:
