@@ -2,12 +2,15 @@
 
 current capabilities: 
 - writing to images
+- basic ray-tracing w/normals
+![Ray tracing parity uptil section 7](ray_normal_spheres.ppm)
 
 in the works:
-- ray tracing
 - basic materials
 
 dream features:
 - bvh
 - particle systems
 - spectral rendering
+- gpu support
+- fpga support?

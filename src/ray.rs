@@ -1,36 +1,45 @@
-use crate::vec3::{mul, vec3};
+use crate::vec3::{mul, Vec3};
+use crate::point3::Point3;
 
 pub trait At {
-    fn at(&self, t: f32) -> vec3;
+    fn at(&self, t: f32) -> Vec3;
 }
 
 pub trait Origin {
-    fn origin(&self) -> vec3;
+    fn origin(&self) -> Point3;
 }
 
 pub trait Direction {
-    fn direction(&self) -> vec3;
+    fn direction(&self) -> Vec3;
 }
 
-pub struct ray {
-    orig: vec3,
-    dir: vec3,
+pub struct Ray {
+    pub(crate) orig: Point3,
+    pub(crate) dir: Vec3,
 }
 
-impl Origin for ray {
-    fn origin(&self) -> vec3 {
+impl Origin for Ray {
+    fn origin(&self) -> Point3 {
         self.orig
     }
 }
 
-impl Direction for ray {
-    fn direction(&self) -> vec3 {
+impl Direction for Ray {
+    fn direction(&self) -> Vec3 {
         self.dir
     }
 }
 
-impl At for ray {
-    fn at(&self, t: f32) -> vec3 {
+impl At for Ray {
+    fn at(&self, t: f32) -> Vec3 {
         self.orig + mul(self.dir, t)
+    }
+}
+
+impl Copy for Ray {}
+
+impl Clone for Ray {
+    fn clone(&self) -> Self {
+        *self
     }
 }
