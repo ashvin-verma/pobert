@@ -77,7 +77,6 @@ fn main() {
         mat: material_right,
     }));
 
-
     // Camera
 
     let mut cam = Camera::new();
@@ -86,6 +85,28 @@ fn main() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+
+    cam.vfov = 20;
+    
+    cam.lookfrom = point3::Point3 {
+        x: -2.0,
+        y: 2.0,
+        z: 1.0,
+    };
+    cam.lookat = point3::Point3 {
+        x: 0.0,
+        y: 0.0,
+        z: -1.0,
+    };
+    cam.vup = Vec3 {
+        x: 0.0,
+        y: 1.0,
+        z: 0.0,
+    };
+
+    cam.defocus_angle = 10.0;
+    cam.focus_dist = 3.4;
+    
 
     cam.render(&world)
 
