@@ -13,6 +13,7 @@ pub trait Direction {
     fn direction(&self) -> Vec3;
 }
 
+#[derive(Debug)]
 pub struct Ray {
     pub(crate) orig: Point3,
     pub(crate) dir: Vec3,
@@ -32,7 +33,7 @@ impl Direction for Ray {
 
 impl At for Ray {
     fn at(&self, t: f32) -> Vec3 {
-        self.orig + mul(self.dir, t)
+        self.orig +self.dir * t
     }
 }
 
@@ -41,5 +42,11 @@ impl Copy for Ray {}
 impl Clone for Ray {
     fn clone(&self) -> Self {
         *self
+    }
+}
+
+impl Ray {
+    pub fn new(origin: Point3, direction: Vec3) -> Self {
+        Self { orig: origin, dir: direction }
     }
 }

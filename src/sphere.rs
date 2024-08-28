@@ -1,3 +1,6 @@
+use std::ops::Mul;
+
+use crate::material::{self, Material, Scatter};
 use crate::vec3::{div, LengthSquared, mul, Dot, Vec3};
 use crate::point3::Point3;
 use crate::ray::{At, Direction, Origin, Ray};
@@ -40,11 +43,12 @@ pub struct HitRecord {
     pub(crate) normal: Vec3,
     pub(crate) t: f32,
     pub(crate) front_face: bool,
+    pub(crate) mat: Material,
 }
-
 pub struct Sphere {
     pub(crate) center: Point3,
     pub(crate) radius: f32,
+    pub(crate) mat: Material,
 }
 
 pub struct HittableList {
@@ -65,18 +69,20 @@ impl Hit for Sphere {
         } else {
             let root = discriminant.sqrt();
             let mut temp = (h - root) / a;
-            if !ray_t.surrounds(temp as f64) {
+            if !ray_t.surrounds(temp) {
                 temp = (h + root) / a;
-                if !ray_t.surrounds(temp as f64) {
+                if !ray_t.surrounds(temp) {
                     return false;
                 }
             }
             rec.t = temp;
             rec.p = r.at(rec.t);
             
-            let outward_normal = div((rec.p - self.center), self.radius);
+            let outward_normal = (rec.p - self.center) / self.radius;
 
             rec.set_face_normal(r, outward_normal);
+
+            rec.mat = self.mat;
 
             return true;
         }
@@ -116,6 +122,7 @@ impl Hit for HittableList {
             p: Point3 { x: 0.0, y: 0.0, z: 0.0 },
             normal: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
             t: 0.0,
+            mat: material::Material::Lambertian(material::Lambertian::new(Vec3::new(0.0, 0.0, 0.0))),
             front_face: false,
         };
         let mut hit_anything = false;
@@ -124,11 +131,12 @@ impl Hit for HittableList {
         for object in self.objects.iter() {
             if object.hit(r,  Interval::new(ray_t.min, closest_so_far), &mut temp_rec) {
                 hit_anything = true;
-                closest_so_far = temp_rec.t as f64;
+                closest_so_far = temp_rec.t;
                 rec.t = temp_rec.t;
                 rec.p = temp_rec.p;
                 rec.normal = temp_rec.normal;
                 rec.front_face = temp_rec.front_face;
+                rec.mat = temp_rec.mat;
             }
         }
 
@@ -156,6 +164,7 @@ impl Clone for Sphere {
         Sphere {
             center: self.center,
             radius: self.radius,
+            mat: self.mat.clone(),
         }
     }
 }
@@ -168,6 +177,20 @@ impl Add for HittableList {
 
 impl Sphere {
     pub fn new(center: Point3, radius: f32) -> Self {
-        Self { center, radius }
+        
+        Self { center, radius, mat: material::Material::Lambertian(material::Lambertian::new(Vec3::new(0.0, 0.0, 0.0))) }
     }
 }
+
+impl New for HitRecord {
+    fn new() -> Self {
+        HitRecord {
+            p: Point3 { x: 0.0, y: 0.0, z: 0.0 },
+            normal: Vec3 { x: 0.0, y: 0.0, z: 0.0 },
+            t: 0.0,
+            front_face: false,
+            mat: material::Material::Lambertian(material::Lambertian::new(Vec3::new(0.0, 0.0, 0.0))),
+        }
+    }
+}
+
