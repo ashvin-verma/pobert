@@ -1,17 +1,12 @@
 # PoBeRT: Physically Based Ray Tracer written in Rust
 
-current capabilities: 
-- writing to images
-- basic ray-tracing w/normals
+Finished "Ray Tracing in One Weekend" by Peter Shirley.
 
-![Ray tracing parity uptil section 7](/ray_normals_spheres.png)
+![Final image](/final.png)
+![Funky image](/final_funky.png)
 
-in the works:
-- basic materials
+- currently doing "Ray Tracing in a Week", the successor book.
 
-dream features:
-- bvh
-- particle systems
-- spectral rendering
-- gpu support
-- fpga support?
+future:
+- CUDA rendering support
+- spectral renderer and processor
