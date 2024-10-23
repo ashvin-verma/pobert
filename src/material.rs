@@ -1,4 +1,4 @@
-use crate::{color::Color, ray::{Direction, Ray}, rtweekend::random_double, sphere::HitRecord, vec3::{random_unit_vector, reflect, refract, Dot, NearZero, Unit, Vec3}};
+use crate::{color::Color, ray::{Direction, Ray, Time}, rtweekend::random_double, sphere::HitRecord, vec3::{random_unit_vector, reflect, refract, Dot, NearZero, Unit, Vec3}};
 
 pub enum Material {
     Lambertian(Lambertian),
@@ -82,7 +82,7 @@ impl Scatter for Lambertian {
         else {
             scatter_direction = rec.normal + random_unit_vector();
         }
-        let new_ray = Ray::new(rec.p, scatter_direction);
+        let new_ray = Ray::new(rec.p, scatter_direction, r_in.time());
         *scattered = new_ray.clone();
         *attenuation = self.albedo.clone();
         // eprintln!("Lambertian scatter: attenuation = {:?}, scattered = {:?}", attenuation, scattered);
@@ -93,7 +93,7 @@ impl Scatter for Lambertian {
 impl Scatter for Metal {
     fn scatter(&self, r_in: &Ray, rec: &mut HitRecord, mut attenuation: &mut Color, mut scattered: &mut Ray) -> bool {
         let reflected = reflect(r_in.direction().unit(),rec.normal);
-        let new_ray = Ray::new(rec.p, reflected + random_unit_vector() * self.fuzz);
+        let new_ray = Ray::new(rec.p, reflected + random_unit_vector() * self.fuzz, r_in.time());
         *scattered = new_ray.clone();
         *attenuation = self.albedo.clone();
         // eprintln!("Metal scatter: attenuation = {:?}, scattered = {:?}", attenuation, scattered);
@@ -130,7 +130,7 @@ impl Scatter for Dialectric {
             refract(unit_direction, rec.normal, refraction_ratio)
         };
 
-        *scattered = Ray::new(rec.p, direction);
+        *scattered = Ray::new(rec.p, direction, r_in.time());
         true
     }
 }

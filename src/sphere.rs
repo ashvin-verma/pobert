@@ -3,7 +3,7 @@ use std::ops::Mul;
 use crate::material::{self, Material, Scatter};
 use crate::vec3::{div, LengthSquared, mul, Dot, Vec3};
 use crate::point3::Point3;
-use crate::ray::{At, Direction, Origin, Ray};
+use crate::ray::{At, Direction, Origin, Ray, Time};
 use crate::interval::{Interval, Surrounds};
 
 pub trait Hit {
@@ -17,11 +17,13 @@ pub trait Clear {
 #[derive(Clone)]
 pub enum HittableObject {
     Sphere(Sphere),
+    MovingSphere(MovingSphere),
 }
 impl Hit for HittableObject {
     fn hit(&self, r: Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         match self {
             HittableObject::Sphere(sphere) => sphere.hit(r, ray_t, rec),
+            HittableObject::MovingSphere(moving_sphere) => moving_sphere.hit(r, ray_t, rec),
             // Add other cases here as needed
         }
     }
@@ -194,3 +196,61 @@ impl New for HitRecord {
     }
 }
 
+
+pub struct MovingSphere {
+    pub(crate) center1: Point3,
+    pub(crate) center2: Point3,
+    pub(crate) time1: f32,
+    pub(crate) time2: f32,
+    pub(crate) radius: f32,
+    pub(crate) mat: Material,
+}
+
+
+impl Hit for MovingSphere {
+    fn hit(&self, r: Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
+        let center = self.center1 + ((r.time() - self.time1) / (self.time2 - self.time1)) * (self.center2 - self.center1);
+        let oc = center - r.origin();
+        let a = r.direction().length_squared();
+        let h = oc.dot(r.direction());
+        let c = oc.length_squared() - self.radius*self.radius;
+        let discriminant = h*h - a*c;
+
+        if discriminant < 0.0 {
+            return false;
+        } else {
+            let root = discriminant.sqrt();
+            let mut temp = (h - root) / a;
+            if !ray_t.surrounds(temp) {
+                temp = (h + root) / a;
+                if !ray_t.surrounds(temp) {
+                    return false;
+                }
+            }
+            rec.t = temp;
+            rec.p = r.at(rec.t);
+            
+            let outward_normal = (rec.p - center) / self.radius;
+
+            rec.set_face_normal(r, outward_normal);
+
+            rec.mat = self.mat;
+
+            return true;
+        }
+    }
+}
+
+
+impl Clone for MovingSphere {
+    fn clone(&self) -> Self {
+        MovingSphere {
+            center1: self.center1,
+            center2: self.center2,
+            time1: self.time1,
+            time2: self.time2,
+            radius: self.radius,
+            mat: self.mat.clone(),
+        }
+    }
+}

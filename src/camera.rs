@@ -53,7 +53,7 @@ impl RayColor for Camera {
         }
         let mut rec = HitRecord::new();
         if world.hit(r, Interval::new(0.001, INF), &mut rec) {
-            let mut scattered = Ray::new(Vec3::new(0.0,0.0,0.0), Vec3::new(0.0,0.0,0.0));
+            let mut scattered = Ray::new(Vec3::new(0.0,0.0,0.0), Vec3::new(0.0,0.0,0.0), 0.0);
             let mut attenuation = Vec3::new(0.0,0.0,0.0);
             if rec.mat.clone().scatter(&r, &mut rec, &mut attenuation, &mut scattered) {
                 // eprintln!("RayColor: attenuation = {:?}, scattered = {:?}", attenuation, scattered);
@@ -166,10 +166,13 @@ impl GetRay for Camera {
             self.defocus_disk_sample()
         };
         let ray_direction = pixel_sample - ray_origin;
+        
+        let ray_time = random_double();
 
         Ray {
             orig: ray_origin,
             dir: ray_direction,
+            tm: ray_time,
         }
     }
 }

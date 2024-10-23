@@ -9,6 +9,10 @@ pub trait Origin {
     fn origin(&self) -> Point3;
 }
 
+pub trait Time {
+    fn time(&self) -> f32;
+}
+
 pub trait Direction {
     fn direction(&self) -> Vec3;
 }
@@ -17,6 +21,7 @@ pub trait Direction {
 pub struct Ray {
     pub(crate) orig: Point3,
     pub(crate) dir: Vec3,
+    pub(crate) tm: f32,
 }
 
 impl Origin for Ray {
@@ -46,7 +51,13 @@ impl Clone for Ray {
 }
 
 impl Ray {
-    pub fn new(origin: Point3, direction: Vec3) -> Self {
-        Self { orig: origin, dir: direction }
+    pub fn new(origin: Point3, direction: Vec3, time: f32) -> Self {
+        Self { orig: origin, dir: direction, tm: time }
+    }
+}
+
+impl Time for Ray {
+    fn time(&self) -> f32 {
+        self.tm
     }
 }

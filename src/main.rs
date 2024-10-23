@@ -4,7 +4,7 @@ use interval::Interval;
 use point3::Point3;
 use ray::At;
 use rtweekend::{random_double_range, INF};
-use sphere::{Add, Hit, HitRecord, HittableList, New, Sphere};
+use sphere::{Add, Hit, HitRecord, HittableList, MovingSphere, New, Sphere};
 use vec3::{dot, element_wise_mul, random, random_range, Length, LengthSquared, Unit, Vec3};
 mod vec3;
 pub mod color;
@@ -46,9 +46,13 @@ fn main() {
 
                 if choose_mat < 0.8 {
                     let albedo = element_wise_mul(random(), random());
+                    let center2 = center + Vec3::new(0.0, random_double_range(0.0, 0.5), 0.0);
                     sphere_material = material::Material::Lambertian(material::Lambertian::new(albedo));
-                    world.add(sphere::HittableObject::Sphere(Sphere {
-                        center,
+                    world.add(sphere::HittableObject::MovingSphere(MovingSphere {
+                        center1: center,
+                        center2: center2,
+                        time1: 0.0,
+                        time2: 0.2,
                         radius: 0.2,
                         mat: sphere_material,
                     }));
@@ -113,26 +117,26 @@ fn main() {
     let mut cam = Camera::new();
 
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 1200;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 50;
 
     cam.vfov = 20;
 
     cam.lookfrom = point3::Point3 {
-        x: 3.0,
+        x: 10.0,
         y: 4.0,
         z: 3.0,
     };
     cam.lookat = point3::Point3 {
         x: 0.0,
-        y: 0.0,
+        y: 1.0,
         z: 0.0,
     };
     cam.vup = Vec3 {
         x: 0.0,
-        y: 1.0,
-        z: 0.5,
+        y: 0.0,
+        z: 1.5,
     };
 
     cam.defocus_angle = 0.6;
